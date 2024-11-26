@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sher-o-Shayari</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Shayari">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="search-overlay">
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Search shayari...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <main>
+            <div class="shayari-container">
+                <!-- Shayari cards will be dynamically inserted here -->
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn" id="home-btn"><i class="fas fa-home"></i></button>
+            <button class="nav-btn" id="favorites-btn"><i class="fas fa-heart"></i></button>
+            <button class="nav-btn" id="search-toggle-btn"><i class="fas fa-search"></i></button>
+        </nav>
+    </div>
+
+    <div id="install-prompt" class="install-prompt">
+        <p>Install Sher-o-Shayari on your device</p>
+        <button id="install-btn">Install</button>
+        <button id="close-prompt-btn">Not Now</button>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => console.log('ServiceWorker registration successful'))
+                .catch((err) => console.log('ServiceWorker registration failed: ', err));
+        }
+
+        // Handle PWA installation
+        let deferredPrompt;
+        const installPrompt = document.getElementById('install-prompt');
+        const installBtn = document.getElementById('install-btn');
+        const closePromptBtn = document.getElementById('close-prompt-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('App installed');
+                }
+                deferredPrompt = null;
+            }
+            installPrompt.style.display = 'none';
+        });
+
+        closePromptBtn.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
